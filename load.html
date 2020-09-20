@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Loader effect</title>
+	<style>
+		body{
+			background-color:#383e3b;
+			width:100%;
+			height:100vh;
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			
+		}
+		.container{
+			-webkit-box-reflect: below 1px linear-gradient(#2ad29b,#2f695d,transparent);
+		}
+		#loader{
+			width:200px;
+			height:200px;
+			border-radius:100%;
+			background-color:#3d443e;
+			position:relative;
+			animation:animate 2s linear infinite;
+
+		}
+		#loader:after{
+			content:'';
+			width:50%;
+			height:100%;
+			background: linear-gradient(#2ad29b,#2f695d,transparent);
+			background-size:100px 180px;
+			background-repeat:no-repeat;
+			position:absolute;
+			top:0;
+			border-top-left-radius:100px;
+			border-bottom-left-radius:100px;
+		}
+		#loader:before{
+			content: '';
+			position: absolute;
+			left: 50%;
+			top: 0;
+			transform: translateX(-50%);
+			width: 20px;
+			height: 20px;
+			background-color: #49e2e2;
+			z-index: 10;
+			border-radius: 100%;
+			box-shadow: 0 0 15px 0 #30ffff, 0 0 30px 0 #66ffff, 0 0 45px 0 #4bffff, 0 0 60px 0 #3ff3f3, 0 0 75px 0 #78ffff, 0 0 90px 0 #7ef3f3, 0 0 105px 0 #0afbfb, 0 0 120px 0 #30ffff;
+		}
+		#loader span{
+			position: absolute;
+			top:1.3rem;
+			left:1.3rem;
+			bottom:1.3rem;
+			right:1.3rem;
+			background-color:#383e3b;
+			border-radius:100%;
+			z-index:10;
+		}
+		@keyframes animate {
+			0%{
+				transform:rotate(0);
+				filter:hue-rotate(0)
+			}
+			100%{
+				transform:rotate(360deg);
+				filter:hue-rotate(330deg);
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div id="loader">
+			<span></span>
+		</div>
+	</div>
+</body>
+</html>

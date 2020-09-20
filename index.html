@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Flappy bird</title>
+	<link rel="stylesheet" href="style.css"/>
+	<script src="app.js"></script>
+	<style>
+		body{
+			width:100%;
+			height:100vh;
+			display:flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.container{
+			width:400px;
+			height:600px;
+			border:1px solid black;
+			display:flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			position:relative;
+		}
+		#modal-help,#open-setting{
+			display:none;
+			width:90%;
+			position:absolute;
+			top:50%;
+			left:50%;
+			z-index:10;
+			transform:translate(-50%,-50%);
+			border-radius:5px;
+			box-shadow:0 0 5px  black;
+			background-color:white;
+			padding:1rem 0.5rem;
+			font-family: sans-serif;
+		}
+		/** ---------- CSS for section loading ------------ **/
+		.loading{
+			width:90%;
+			height:40px;
+			border-radius:30px;
+			border:2px solid black;
+			position:relative;
+			overflow:hidden;
+		}
+		.loading #percentage-display{
+			position:absolute;
+			display:block;
+			left:50%;
+			top:30%;
+			z-index:10;
+			transform:translateX(-50%);
+			font-size:1.3rem;
+		}
+		.loading #process{
+			display:block;
+			position:absolute;
+			top:0;
+			left:0;
+			width:0;
+			height:100%;
+			background-color:orange;
+		}
+		.close{
+			outline:none;
+			border:none;
+			padding:0.5rem 1rem;
+			background-color:red;
+			border-radius:5px;
+			display:block;
+			margin:0 auto;
+			cursor:pointer;
+		}
+		/** -------- CSS for section menu ---------- **/
+		.menu{
+			list-style:none;
+		}
+		.menu li{
+			margin:1rem 0;
+			padding:0.8rem 2.5rem;
+			border-radius:30px;
+			font-size:1.7rem;
+			font-family:cursive;
+			font-weight:900;
+			text-align: center;
+			color:white;
+			background:linear-gradient(45deg,orange,yellow);
+			cursor:pointer;
+		}
+		.menu li:hover{
+			background:linear-gradient(45deg,green,lime);
+		}
+		.fixed{
+			width:100%;
+			height:100%;
+			position:absolute;
+			background-color:black;
+			opacity:.5;
+		}
+		/** -------- CSS for section setting ---------- **/
+		#speed{
+			display:flex;
+			justify-content: center;
+		}
+		#speed span{
+			display:block;
+			width:60px;
+			height:40px;
+			border:2px solid black;
+			cursor:pointer;
+		}
+		#speed span.background{
+			background-color:lime;
+		}
+		/** ------- CSS for section play --------- **/
+		.game-container{
+			width:100%;
+			height:100%;
+			background-color:purple;
+			position:relative;
+			overflow:hidden;
+		} 
+		.ground{
+			width:100%;
+			height:100px;
+			background-color:brown;
+			position:absolute;
+			bottom:0;
+			z-index:10;
+		}
+		.bird{
+			background-color:yellow;
+			width:60px;
+			height:40px;
+			position:absolute;
+		}
+		.pipe-1,.pipe-2{
+			width:50px;
+			height:230px;
+			background-color:green;
+			position:absolute;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="loading">
+			<span id="process"></span>
+			<span id="percentage-display">20 %</span>
+		</div>
+		<ul class="menu" style="display:none;">
+			<li id="play">Chơi Ngay</li>
+			<li id="help">Hưỡng dẫn</li>
+			<li id="setting">Cài đặt</li>
+		</ul>
+		<div class="game-container" style="display:none;">
+			<div class="bird"></div>
+			<div class="ground"></div>
+		</div>
+		<div id="modal-help">
+			<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus, eveniet? Alias earum ipsum voluptatum, aut asperiores pariatur dolore dolores amet, laboriosam beatae, iure eveniet minus maxime provident culpa hic nam.</p>
+			<button class="close">Close</button>
+		</div>
+		<div id="open-setting">
+			<div id="speed">
+				<span class="background" data-index="0"></span>
+				<span data-index="1"></span>
+				<span data-index="2"></span>
+				<span data-index="3"></span>
+				<span data-index="4"></span>
+				<span data-index="5"></span>
+				<span data-index="6"></span>
+			</div>
+			<h4 style="text-align:center">Thay đổi tốc độ</h4>
+			<button class="close">Close</button>
+		</div>
+	</div>
+	<script>
+		window.addEventListener('DOMContentLoaded',function(){
+
+			var container = document.querySelector('.container')
+			var percentage = 0
+			var load = document.querySelector('.loading')
+			var percentageDisplay = document.querySelector('#percentage-display')
+			var process = document.querySelector('#process')
+			var menu = document.querySelector('.menu')
+			var help = document.querySelector('#help')
+			var closeModalBox = document.querySelectorAll('.close')
+			var helpDisplay = document.querySelector('#modal-help')
+			var setting = document.querySelector('#setting')
+			var showSettings = document.querySelector("#open-setting")
+			var playBtn = document.querySelector('#play')
+			var gameContainer = document.querySelector('.game-container')
+			function handleLoading(){
+				if(percentage === 100){
+					setTimeout(function(){
+						displayInterface(menu,load)
+					},100)
+					clearInterval(timerLoad)
+					return
+				}
+				percentage++
+				percentageDisplay.textContent = percentage + '%'
+				process.style.setProperty("width",percentage + '%')
+			}
+			handleLoading()
+			var timerLoad = setInterval(handleLoading,50)
+
+			function readHelp(){
+				var fixed = document.createElement('div')
+				fixed.setAttribute('class','fixed')
+				container.appendChild(fixed)
+				helpDisplay.style.setProperty("display","block")
+			}
+			function closeModal(){
+				document.querySelector('.fixed').remove()
+				helpDisplay.style.setProperty("display","none")
+				showSettings.style.setProperty("display","none")
+				console.log('loading...')
+			}
+
+			help.addEventListener('click',readHelp)
+			closeModalBox.forEach(item => {
+				item.addEventListener('click',closeModal)
+			})
+
+			function selectSpeed(){
+				var speedItem = document.querySelectorAll('#speed span')
+				var speedIndex = 1;
+				for(let i=0;i<speedItem.length;i++){
+					speedItem[i].onmouseover = function(){
+						speedIndex = i;
+						removeBackground(speedItem)
+						for(let j=0;j<=speedIndex;j++){
+							speedItem[j].classList.add('background')
+						}
+					}
+				}
+			}
+			selectSpeed()
+
+			function removeBackground(speedItem){
+				for(let i=0;i<speedItem.length;i++){
+					speedItem[i].classList.remove('background')
+				}
+			}
+			function openSetting(){
+				var fixed = document.createElement('div')
+				fixed.setAttribute('class','fixed')
+				container.appendChild(fixed)
+				showSettings.style.setProperty("display","block")
+			}
+			setting.addEventListener('click',openSetting)
+
+			function displayInterface(show,hide){
+				show.style.setProperty("display","block")
+				hide.style.setProperty("display","none")
+			}
+
+			/** start game **/
+			var bird = document.querySelector('.bird')
+			var gameDisplay = document.querySelector('.game-container')
+			var ground = document.querySelector('.ground')
+			var screenHeight = null;
+			var birdLeft = 170
+			var birdHeight = null;
+			var birdBottom = 250
+			var gravity = 3
+			var isGameOver = false
+			
+			function startGame(){
+				birdBottom -= gravity
+				bird.style.setProperty("left",birdLeft + 'px')
+				bird.style.setProperty("bottom",birdBottom + 'px')
+			}
+			
+			function control(e){
+				if(e.keyCode == 32){
+					jump()
+				}
+			}
+
+			function jump(){
+				if(birdBottom + birdHeight + 50 >= screenHeight) return 
+				birdBottom += 50
+				bird.style.setProperty("left",birdLeft + 'px')
+				bird.style.setProperty("bottom",birdBottom + 'px')
+			}
+
+			document.addEventListener('keyup',control)
+
+
+			function generateObtracle(){
+				var obstacleLeft = gameDisplay.offsetWidth - 50
+				let randomHeight = Math.random() * 100
+				var obstacleBottom = randomHeight
+				
+				let pipe1 = document.createElement('div')
+				let pipe2 = document.createElement('div')
+				if(!isGameOver){
+					pipe1.classList.add('pipe-1')
+					pipe2.classList.add('pipe-2')
+				}
+				gameDisplay.appendChild(pipe1)
+				gameDisplay.appendChild(pipe2)
+
+				pipe1.style.setProperty('left',obstacleLeft + 'px')
+				pipe1.style.setProperty('top', '-' + obstacleBottom + 'px')
+				pipe2.style.setProperty('left',obstacleLeft + 'px')
+				pipe2.style.setProperty('bottom', obstacleBottom + 'px')
+
+				function moveObtracle(){
+					obstacleLeft -= 3
+					pipe1.style.setProperty('left',obstacleLeft + 'px')
+					pipe2.style.setProperty('left',obstacleLeft + 'px')
+					if(obstacleLeft + 50 < 0){
+						clearInterval(timerId)
+						gameDisplay.removeChild(pipe1)
+						gameDisplay.removeChild(pipe2)
+					}
+					if(birdLeft + bird.offsetWidth  >= obstacleLeft && birdLeft + bird.offsetWidth < obstacleLeft + 50 && (birdBottom < obstacleBottom  + 200 || birdBottom  + birdHeight> 230  + gameDisplay.offsetHeight + obstacleBottom - (230 * 2))){
+						console.log('game over:' + birdBottom) 
+					}
+				}
+				let timerId = setInterval(moveObtracle,20)  
+				if(!isGameOver) setTimeout(generateObtracle,2000)
+			}
+
+			play.addEventListener('click',function(){
+				displayInterface(gameContainer,menu)
+				generateObtracle()  
+				birdHeight = bird.offsetHeight
+				screenHeight = gameDisplay.offsetHeight
+
+				console.log(screenHeight,birdHeight)
+				let gameTimerId = setInterval(startGame,20) 
+			})
+		})
+	</script>
+</body>
+</html>
